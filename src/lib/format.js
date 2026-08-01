@@ -1,7 +1,7 @@
 export const GROUPES = ["Junior Bleu", "Junior Jaune"];
 export const BASSINS = ["25m", "50m"];
 export const EPREUVES = [
-  "50 NL", "100 NL", "200 NL", "400 NL",
+  "50 NL", "100 NL", "200 NL", "400 NL", "800 NL", "1500 NL",
   "50 Dos", "100 Dos", "50 Brasse", "100 Brasse",
   "50 Pap", "100 Pap", "200 4N", "400 4N",
 ];
