@@ -28,8 +28,14 @@ export const upsertAttendance = (row) =>
 
 // ---- performances ----
 export const listPerformances = () => supabase.from("performances").select("*").order("date", { ascending: false });
-export const createPerformance = (payload) => supabase.from("performances").insert(payload);
+export const createPerformance = (payload) => supabase.from("performances").insert(payload).select().single();
+export const updatePerformance = (id, payload) => supabase.from("performances").update(payload).eq("id", id);
 export const deletePerformance = (id) => supabase.from("performances").delete().eq("id", id);
+
+// ---- temps de passage, coups de bras, fréquence (analyse de course) ----
+export const listPerformanceSplits = () => supabase.from("performance_splits").select("*").order("distance_m");
+export const createPerformanceSplit = (payload) => supabase.from("performance_splits").insert(payload);
+export const deletePerformanceSplit = (id) => supabase.from("performance_splits").delete().eq("id", id);
 
 // ---- vma_tests ----
 export const listVma = () => supabase.from("vma_tests").select("*").order("date", { ascending: false });
