@@ -88,6 +88,7 @@ export const deleteGrilleTemps = (id) => supabase.from("grille_temps").delete().
 export const listJours = () => fetchAll("jours_entrainement", { order: "date" });
 export const createJour = (payload) => supabase.from("jours_entrainement").insert(payload);
 export const createJoursBulk = (rows) => supabase.from("jours_entrainement").insert(rows);
+export const updateJour = (id, payload) => supabase.from("jours_entrainement").update(payload).eq("id", id);
 export const deleteJour = (id) => supabase.from("jours_entrainement").delete().eq("id", id);
 
 // ---- presences (autonomes, indépendantes des séances) ----
