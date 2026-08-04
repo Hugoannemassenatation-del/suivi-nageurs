@@ -103,6 +103,7 @@ export const deleteFormulaire = (id) => supabase.from("formulaires").delete().eq
 
 export const listQuestions = () => supabase.from("formulaire_questions").select("*").order("ordre");
 export const createQuestion = (payload) => supabase.from("formulaire_questions").insert(payload);
+export const createQuestionsBulk = (rows) => supabase.from("formulaire_questions").insert(rows);
 export const deleteQuestion = (id) => supabase.from("formulaire_questions").delete().eq("id", id);
 
 export const listReponses = () => fetchAll("formulaire_reponses");
