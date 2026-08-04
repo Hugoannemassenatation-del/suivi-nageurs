@@ -107,6 +107,13 @@ export function toISODate(date) {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+// Affiche une date ISO (AAAA-MM-JJ) au format français JJ/MM/AAAA
+export function formatDateFR(iso) {
+  if (!iso) return "";
+  const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
 // Grille de 42 jours (6 semaines, lundi en premier) couvrant le mois donné en entier
 export function buildMonthGrid(date) {
   const year = date.getFullYear(), month = date.getMonth();
