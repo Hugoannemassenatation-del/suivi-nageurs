@@ -77,12 +77,12 @@ export default async function handler(req, res) {
     }
 
     if (type === "absence_notice") {
-      const { data: fam } = await adminClient.from("profiles").select("id").eq("role", "famille").eq("swimmer_id", swimmerId);
+      const { data: fam } = await adminClient.from("profiles").select("id").eq("role", "famille").eq("famille_role", "parent").eq("swimmer_id", swimmerId);
       const emails = await emailsOfProfiles(adminClient, fam);
       await sendEmail(
         emails,
         `Absence non signalée — entraînement du ${jourInfo || ""}`,
-        `<p>Bonjour,</p><p><strong>${auteur || "Le club"}</strong> signale que votre nageur(euse) n'était pas présent(e) à l'entraînement du <strong>${jourInfo || ""}</strong>, sans avoir été prévenu(e) à l'avance.</p><p>Merci de penser à signaler les absences en amont depuis l'onglet Séances de l'application, quand c'est possible.</p><p><a href="${SITE_URL}">Voir sur Suivi Nageurs</a></p>`
+        `<p>Bonjour,</p><p><strong>${auteur || "Le club"}</strong> signale que votre enfant n'était pas présent(e) à l'entraînement du <strong>${jourInfo || ""}</strong>, sans avoir été prévenu(e) à l'avance.</p><p>Merci de penser à signaler les absences en amont depuis l'onglet Séances de l'application, quand c'est possible.</p><p><a href="${SITE_URL}">Voir sur Suivi Nageurs</a></p>`
       );
     }
 
