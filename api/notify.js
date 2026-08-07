@@ -86,6 +86,16 @@ export default async function handler(req, res) {
       );
     }
 
+    if (type === "formulaire") {
+      const { data: fam } = await adminClient.from("profiles").select("id").eq("role", "famille");
+      const emails = await emailsOfProfiles(adminClient, fam);
+      await sendEmail(
+        emails,
+        `Nouveau formulaire à remplir — ${auteur || ""}`,
+        `<p>Bonjour,</p><p>Un nouveau formulaire est disponible sur Suivi Nageurs : <strong>${auteur || ""}</strong>.</p>${texte ? `<p>${texte}</p>` : ""}<p>Merci de le remplir depuis l'onglet Formulaires de l'application.</p><p><a href="${SITE_URL}">Voir sur Suivi Nageurs</a></p>`
+      );
+    }
+
     return res.status(200).json({ ok: true });
   } catch (e) {
     return res.status(500).json({ error: e.message });
