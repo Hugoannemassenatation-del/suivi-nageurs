@@ -66,6 +66,7 @@ export const deleteVma = (id) => supabase.from("vma_tests").delete().eq("id", id
 // ---- events (calendrier) ----
 export const listEvents = () => fetchAll("events", { order: "date_debut" });
 export const createEvent = (payload) => supabase.from("events").insert(payload).select().single();
+export const updateEvent = (id, payload) => supabase.from("events").update(payload).eq("id", id);
 export const deleteEvent = (id) => supabase.from("events").delete().eq("id", id);
 
 export const listEventCalendriers = () => fetchAll("event_calendriers");
