@@ -23,7 +23,7 @@ async function fetchAll(table, { order, ascending = true, select = "*" } = {}) {
 export const listSwimmers = () => supabase.from("swimmers").select("*").order("nom");
 export const deleteSwimmer = (id) => supabase.from("swimmers").delete().eq("id", id);
 
-// ---- trainings_sessions + attendance ----
+// ---- trainings_sessions ----
 export const listSessions = () => fetchAll("trainings_sessions", { order: "date", ascending: false });
 export const createSession = (payload) => supabase.from("trainings_sessions").insert(payload).select().single();
 export const deleteSession = (id) => supabase.from("trainings_sessions").delete().eq("id", id);
@@ -39,11 +39,6 @@ export const uploadSeancePhoto = async (file) => {
 export const listJourRpe = () => fetchAll("jour_rpe");
 export const upsertJourRpe = (row) =>
   supabase.from("jour_rpe").upsert(row, { onConflict: "jour_id,swimmer_id" }).select().single();
-export const listAttendanceForSession = (sessionId) =>
-  supabase.from("attendance").select("*").eq("session_id", sessionId);
-export const listAllAttendance = () => fetchAll("attendance");
-export const upsertAttendance = (row) =>
-  supabase.from("attendance").upsert(row, { onConflict: "session_id,swimmer_id" }).select().single();
 
 // ---- performances ----
 export const listPerformances = () => fetchAll("performances", { order: "date", ascending: false });
@@ -68,7 +63,6 @@ export const listEvents = () => fetchAll("events", { order: "date_debut" });
 export const createEvent = (payload) => supabase.from("events").insert(payload).select().single();
 export const updateEvent = (id, payload) => supabase.from("events").update(payload).eq("id", id);
 export const deleteEvent = (id) => supabase.from("events").delete().eq("id", id);
-
 export const listEventCalendriers = () => fetchAll("event_calendriers");
 export const setEventCalendriers = async (eventId, calendrierIds) => {
   await supabase.from("event_calendriers").delete().eq("event_id", eventId);
@@ -81,21 +75,22 @@ export const listGrilles = () => supabase.from("grilles_qualification").select("
 export const createGrille = (payload) => supabase.from("grilles_qualification").insert(payload).select().single();
 export const updateGrille = (id, payload) => supabase.from("grilles_qualification").update(payload).eq("id", id);
 export const deleteGrille = (id) => supabase.from("grilles_qualification").delete().eq("id", id);
-
 export const listGrilleTemps = () => fetchAll("grille_temps");
 export const createGrilleTemps = (payload) => supabase.from("grille_temps").insert(payload);
 export const createGrilleTempsBulk = (rows) => supabase.from("grille_temps").insert(rows);
 export const deleteGrilleTemps = (id) => supabase.from("grille_temps").delete().eq("id", id);
+
+// ---- jours d'entraînement planifiés ----
 export const listJours = () => fetchAll("jours_entrainement", { order: "date" });
 export const createJour = (payload) => supabase.from("jours_entrainement").insert(payload);
 export const createJoursBulk = (rows) => supabase.from("jours_entrainement").insert(rows);
 export const updateJour = (id, payload) => supabase.from("jours_entrainement").update(payload).eq("id", id);
 export const deleteJour = (id) => supabase.from("jours_entrainement").delete().eq("id", id);
 
-// ---- presences (autonomes, indépendantes des séances) ----
+// ---- presences (liées à un créneau précis via jour_id) ----
 export const listPresences = () => fetchAll("presences", { order: "date", ascending: false });
 export const upsertPresence = (row) =>
-  supabase.from("presences").upsert(row, { onConflict: "date,swimmer_id" }).select().single();
+  supabase.from("presences").upsert(row, { onConflict: "jour_id,swimmer_id" }).select().single();
 export const deletePresence = (id) => supabase.from("presences").delete().eq("id", id);
 
 // ---- formulaires ----
@@ -103,15 +98,15 @@ export const listFormulaires = () => supabase.from("formulaires").select("*").or
 export const createFormulaire = (payload) => supabase.from("formulaires").insert(payload).select().single();
 export const updateFormulaire = (id, payload) => supabase.from("formulaires").update(payload).eq("id", id);
 export const deleteFormulaire = (id) => supabase.from("formulaires").delete().eq("id", id);
-
 export const listQuestions = () => supabase.from("formulaire_questions").select("*").order("ordre");
 export const createQuestion = (payload) => supabase.from("formulaire_questions").insert(payload);
 export const createQuestionsBulk = (rows) => supabase.from("formulaire_questions").insert(rows);
 export const deleteQuestion = (id) => supabase.from("formulaire_questions").delete().eq("id", id);
-
 export const listReponses = () => fetchAll("formulaire_reponses");
 export const upsertReponse = (row) =>
   supabase.from("formulaire_reponses").upsert(row, { onConflict: "formulaire_id,swimmer_id" }).select().single();
+
+// ---- calendriers (groupes) ----
 export const listCalendriers = () => supabase.from("calendriers").select("*").order("nom");
 export const createCalendrier = (nom) => supabase.from("calendriers").insert({ nom }).select().single();
 export const deleteCalendrier = (id) => supabase.from("calendriers").delete().eq("id", id);
@@ -127,7 +122,7 @@ export const listMessages = () => fetchAll("messages", { order: "created_at", as
 export const createMessage = (payload) => supabase.from("messages").insert(payload);
 export const deleteMessage = (id) => supabase.from("messages").delete().eq("id", id);
 
-// ---- notifications email (nouveau message, absence signalée) ----
+// ---- notifications email (nouveau message, absence signalée, formulaire) ----
 export async function sendNotification(payload) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return { ok: false, error: "Session expirée." };
@@ -145,10 +140,7 @@ export async function sendNotification(payload) {
   }
 }
 
-// ---- suivi santé structuré ----
-export const listSante = () => fetchAll("sante_entrees", { order: "date", ascending: false });
-export const createSanteEntry = (payload) => supabase.from("sante_entrees").insert(payload);
-export const deleteSanteEntry = (id) => supabase.from("sante_entrees").delete().eq("id", id);
+// ---- wellness_checks (forme du matin) ----
 export const listWellness = () => fetchAll("wellness_checks", { order: "date", ascending: false });
 export const createWellness = (payload) => supabase.from("wellness_checks").insert(payload);
 export const deleteWellness = (id) => supabase.from("wellness_checks").delete().eq("id", id);
